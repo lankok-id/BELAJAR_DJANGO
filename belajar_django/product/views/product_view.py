@@ -4,8 +4,7 @@ from ..models import Product, Category, Status, ProductSerializer
 
 
 def product_index(request):
-    products_obj = Product.objects.filter(status_id__name="bisa dijual")
-    products_obj = Product.objects.all()
+    products_obj = Product.objects.filter(status__name="bisa dijual")
     serializer = ProductSerializer(products_obj, many=True)
     return render(request, "product_index.html", {"products": serializer.data})
 
