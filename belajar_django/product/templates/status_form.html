@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {% if status %}Edit Status{% else %}Tambah Status{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">{% if status %}Edit Status{% else %}Tambah Status Baru{% endif %}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="name" class="form-label fw-bold">Nama Status</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ status.name|default:'' }}" 
+                               placeholder="Misal: bisa dijual, stok habis..." required autofocus>
+                        <div class="form-text">Gunakan nama yang jelas untuk membedakan kondisi produk.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'status_list' %}" class="btn btn-light border">Kembali</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            {% if status %}Update Status{% else %}Simpan Status{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

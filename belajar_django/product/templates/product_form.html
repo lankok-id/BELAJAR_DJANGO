@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}{% if product %}Edit{% else %}Tambah{% endif %} Produk{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-header bg-dark text-white">
+        <h4 class="mb-0">Form Produk</h4>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Nama Produk</label>
+                <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Kategori</label>
+                    <select name="category" class="form-select" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product.category.id == cat.id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select" required>
+                        <option value="">-- Pilih Status --</option>
+                        {% for st in statuses %}
+                        <option value="{{ st.id }}" {% if product.status.id == st.id %}selected{% endif %}>
+                            {{ st.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Harga</label>
+                <input type="text" id="display_price" class="form-control" value="{{ product.price|default:'' }}"
+                    required>
+
+                <input type="hidden" name="price" id="real_price" value="{{ product.price|default:'' }}">
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'product_list' %}" class="btn btn-light border">Batal</a>
+                <button type="submit" class="btn btn-primary">Simpan Produk</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const displayInput = document.getElementById('display_price');
+    const realInput = document.getElementById('real_price');
+
+    // Fungsi untuk memformat angka menjadi ribuan
+    function formatRupiah(angka) {
+        let number_string = angka.replace(/[^,\d]/g, '').toString(),
+            split = number_string.split(','),
+            sisa = split[0].length % 3,
+            rupiah = split[0].substr(0, sisa),
+            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            let separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        return split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+    }
+
+    // Jalankan format saat halaman pertama kali dibuka (untuk mode Edit)
+    if (displayInput.value) {
+        displayInput.value = formatRupiah(displayInput.value);
+    }
+
+    // Event saat user mengetik
+    displayInput.addEventListener('keyup', function (e) {
+        // Tampilkan format ribuan ke user
+        this.value = formatRupiah(this.value);
+
+        // Simpan angka murni (tanpa titik) ke input hidden untuk dikirim ke Django
+        realInput.value = this.value.replace(/\./g, '');
+    });
+</script>
+{% endblock %}
