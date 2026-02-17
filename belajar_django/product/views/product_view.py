@@ -4,9 +4,10 @@ from ..models import Product, Category, Status, ProductSerializer
 
 
 def product_index(request):
-    products_obj = Product.objects.filter(status__name="bisa dijual")
-    serializer = ProductSerializer(products_obj, many=True)
-    return render(request, "product_index.html", {"products": serializer.data})
+    products = Product.objects.select_related("category", "status").filter(
+        status__name="bisa dijual"
+    )
+    return render(request, "product_index.html", {"products": products})
 
 
 def product_create(request):

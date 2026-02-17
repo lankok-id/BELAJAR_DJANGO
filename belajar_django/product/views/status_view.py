@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
-from ..models import Status
+from ..models import Status, StatusSerializer
 
 
 def status_index(request):
@@ -10,10 +10,14 @@ def status_index(request):
 
 def status_create(request):
     if request.method == "POST":
-        name = request.POST.get("name")
-        Status.objects.create(name=name)
-        messages.success(request, "Status berhasil ditambahkan")
-        return redirect("status_list")
+        serializer = StatusSerializer(data=request.POST)
+
+        if serializer.is_valid():
+            serializer.save()
+            messages.success(request, "Status berhasil ditambahkan")
+            return redirect("status_list")
+        else:
+            messages.error(request, serializer.errors)
 
     return render(request, "status_form.html")
 
@@ -22,18 +26,26 @@ def status_update(request, id):
     status = get_object_or_404(Status, id=id)
 
     if request.method == "POST":
-        name = request.POST.get("name")
-        status.name = name
-        status.save()
-        messages.success(request, "Status berhasil diupdate")
-        return redirect("status_list")
+        serializer = StatusSerializer(
+            instance=status,
+            data=request.POST
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            messages.success(request, "Status berhasil diupdate")
+            return redirect("status_list")
+        else:
+            messages.error(request, serializer.errors)
 
     return render(request, "status_form.html", {"status": status})
 
 
 def status_delete(request, id):
     status = get_object_or_404(Status, id=id)
+
     if request.method == "POST":
         status.delete()
-    messages.success(request, "Status berhasil dihapus")
+        messages.success(request, "Status berhasil dihapus")
+
     return redirect("status_list")
